@@ -4,12 +4,23 @@ from github import Github
 from config import access_token
 
 
+def notify_me(me, result):
+    """
+    Notify current user by email regarding the result
+
+    :param me: AuthenticatedUser
+    :param result: int
+    """
+
+    pass
+
+
 def get_total_number_of_commits_by_me(me):
     """
     Returns total number of commits by a given user
 
     :param me: AuthenticatedUser
-    :rtype: integer
+    :rtype: int
     """
 
     total_number_of_commits_by_me = 0
