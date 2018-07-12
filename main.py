@@ -6,20 +6,19 @@ from config import access_token
 
 def main():
     g = Github(access_token)
-    user = g.get_user()  # auth-ed user
-    repos = user.get_repos()
+
+    # type(user) == AuthenticatedUser
+    user = g.get_user()
 
     total_number_of_commits_by_me = 0
-    for idx, repo in enumerate(repos):
+    repos = user.get_repos()
+    for repo in repos:
         # ignore if curr_repo is not owned by me
-        #if repo.author != me:
-        #    continue
+        if repo.owner.login != user.login:
+            continue
         
-        #print('repo.name:', repo.name)
-        #print('repo.description:', repo.description)
-
-        commits = repo.get_commits()
         number_of_commits_by_me = 0
+        commits = repo.get_commits()
         for c in commits:
             author = c.author
 
