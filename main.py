@@ -3,6 +3,7 @@
 from github import Github
 from config import access_token
 
+from config import base
 
 def notify_me(me, result):
     """
