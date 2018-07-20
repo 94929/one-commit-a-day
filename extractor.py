@@ -1,3 +1,4 @@
+import sys
 import json
 import requests
 
@@ -6,7 +7,6 @@ from dateutil.parser import parse
 
 from config import base
 from config import headers
-from config import username
 
 
 class Extractor:
@@ -17,29 +17,40 @@ class Extractor:
     ##################################
 
     def __init__(self):
+        # init user info that are belong to me
+        self.__user = self.__init_user('/user')
+        self.__login = self.__user['login']
+        self.__email = self.__user['email']
+
         # init repos that are owned by me
-        self.__repos = self.__init_repos()
+        self.__repos = self.__init_repos('/user/repos')
 
         # init push events that are owned by me
-        self.__events = self.__init_events()
+        self.__events = (
+                self.__init_events('/users/{}/events'.format(self.__login))
+            )
 
-        # init user info that are belong to me
-        self.__info = self.__init_info()
+    def __init_user(self, url):
+        """ Init all user informations of mine in Github """
+        user = self.__get_contents_from(url)
+        return user
 
-    def __init_repos(self):
+    def __init_repos(self, url):
         """ Init all (public + private) repos owned by me """
-        repos = self.__get_contents_from('/user/repos')
-        repos_of_mine = [r for r in repos if r['owner']['login'] == username]
+        repos = self.__get_contents_from(url)
+        repos_of_mine = (
+                [r for r in repos if r['owner']['login'] == self.__login]
+            )
         return repos_of_mine
 
-    def __init_events(self):
+    def __init_events(self, url):
         """ Init all recent events (push commit) owned by me """
         
         # create a container which will contain all recent push events by me
         recent_push_events_by_me = []
 
         # iterate for each events
-        events = self.__get_contents_from('/users/{}/events'.format(username))
+        events = self.__get_contents_from(url)
         for event in events:
 
             # 1. is this created today
@@ -49,17 +60,12 @@ class Extractor:
             # 2. is this a push event
             # 3. is this created by me
             if (event['type'] == 'PushEvent' 
-                    and event['actor']['login'] == username):
+                    and event['actor']['login'] == self.__login):
 
                 # if all conditions satisfied, append to the container
                 recent_push_events_by_me.append(event)
 
         return recent_push_events_by_me
-
-    def __init_info(self):
-        """ Init informations of Github user account of mine """
-        info = self.__get_contents_from('/users/{}'.format(username))
-        return info
 
     ###################################
     # HTTP Request methods come below #
@@ -67,11 +73,15 @@ class Extractor:
 
     def __get(self, url):
         addr = base + url
-        #print('Performing GET HTTP request to:', addr)
+        print('Performing GET HTTP request to:', addr)
         r = requests.get(base+url, headers=headers)
         if not r.ok:
-            raise ValueError('Cannot perform HTTP request, GET')
-        #print('Received GET HTTP response from:', addr)
+            try:
+                r.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                print(e)
+                sys.exit(1)
+        print('Received GET HTTP response from:', addr)
         return r
 
     def __get_contents_from(self, url):
@@ -82,6 +92,14 @@ class Extractor:
     #############################
     # Getter methods come below #
     #############################
+
+    @property
+    def login(self):
+        return self.__login
+
+    @property
+    def email(self):
+        return self.__email
 
     @property
     def repos(self):
@@ -97,7 +115,9 @@ class Extractor:
 
     def get_repo_names(self):
         return [repo['name'] for repo in self.__repos]
-    
-    def get_email(self):
-        return self.__info['email']
+
+    # testing method
+    def f(self):
+        contents = self.__get_contents_from('/user')
+        print(json.dumps(contents, indent=4))
 
