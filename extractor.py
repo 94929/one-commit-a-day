@@ -1,6 +1,9 @@
 import json
 import requests
 
+from dateutil import parser
+from datetime import datetime
+
 from config import base
 from config import headers
 from config import username
@@ -17,11 +20,39 @@ class Extractor:
         # init repos that are owned by me
         self.__repos = self.__init_repos()
 
+        # init push events that are owned by me
+        self.__events = self.__init_events()
+
     def __init_repos(self):
         """ Init all (public + private) repos owned by me """
         repos = self.__get_contents_from('/user/repos')
         repos_of_mine = [r for r in repos if r['owner']['login'] == username]
         return repos_of_mine
+
+    def __init_events(self):
+        """ Init all recent events (push commit) owned by me """
+        
+        # create a container which will contain all recent push events by me
+        recent_push_events_by_me = []
+
+        # iterate for each events
+        events = self.__get_contents_from('/users/{}/events'.format(username))
+        for event in events:
+
+            # 1. is this created today
+            if (parser.parse(event['created_at']).date() 
+                    != datetime.now().date()):
+                continue
+            
+            # 2. is this a push event
+            # 3. is this created by me
+            if (event['type'] == 'PushEvent' 
+                    and event['actor']['login'] == username):
+
+                # if all conditions satisfied, append to the container
+                recent_push_events_by_me.append(event)
+
+        return recent_push_events_by_me
 
     ###################################
     # HTTP Request methods come below #
@@ -48,25 +79,9 @@ class Extractor:
     def get_repo_names(self):
         return [repo['name'] for repo in self.__repos]
 
-    def get_repo_stats_this_week(self):
-        stats = []
-        for reponame in self.get_repo_names():
-            # get weekly commit count for the repo owner, total 52 weeks
-            url = '/repos/{}/{}/stats/participation'.format(username, reponame)
-            weekly_commit_count = self.__get_contents_from(url)['owner']
-            
-            # get commit count for this week
-            commit_count_this_week = weekly_commit_count[-1]
-            if commit_count_this_week > 0:
-                stats.append((reponame, commit_count_this_week))
-
-        return stats
-
 
 def main():
     e = Extractor()
-    stats = e.get_repo_stats_this_week()
-    print(stats)
 
 
 if __name__ == '__main__':
