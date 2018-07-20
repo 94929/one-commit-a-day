@@ -1,3 +1,3 @@
 base = 'https://api.github.com'
-headers = {}
-
+headers = {'Authorization': 'token (personal access token)'}
+login = 'jsung5381'
