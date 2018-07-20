@@ -76,6 +76,18 @@ class Extractor:
     # Getter methods come below #
     #############################
 
+    @property
+    def repos(self):
+        return self.__repos
+
+    @property
+    def events(self):
+        return self.__events
+
+    ##################################
+    # Algorithmic methods come below #
+    ##################################
+
     def get_repo_names(self):
         return [repo['name'] for repo in self.__repos]
 
