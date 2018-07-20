@@ -1,8 +1,8 @@
 import json
 import requests
 
-from dateutil import parser
 from datetime import datetime
+from dateutil.parser import parse
 
 from config import base
 from config import headers
@@ -40,8 +40,7 @@ class Extractor:
         for event in events:
 
             # 1. is this created today
-            if (parser.parse(event['created_at']).date() 
-                    != datetime.now().date()):
+            if (parse(event['created_at']).date() != datetime.now().date()):
                 continue
             
             # 2. is this a push event
@@ -90,12 +89,4 @@ class Extractor:
 
     def get_repo_names(self):
         return [repo['name'] for repo in self.__repos]
-
-
-def main():
-    e = Extractor()
-
-
-if __name__ == '__main__':
-    main()
 
