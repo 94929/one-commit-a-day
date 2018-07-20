@@ -3,7 +3,7 @@ import requests
 
 from config import base
 from config import headers
-from config import login
+from config import username
 
 
 class Extractor:
@@ -19,7 +19,7 @@ class Extractor:
     def __init_repos(self):
         """ Init all (public + private) repos owned by me """
         repos = self.__get_contents_from('/user/repos')
-        repos_owned_by_me = [r for r in repos if r['owner']['login'] == login]
+        repos_of_mine = [r for r in repos if r['owner']['login'] == username]
         return repos_owned_by_me
 
     ###################################
