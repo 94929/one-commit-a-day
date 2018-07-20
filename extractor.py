@@ -23,6 +23,9 @@ class Extractor:
         # init push events that are owned by me
         self.__events = self.__init_events()
 
+        # init user info that are belong to me
+        self.__info = self.__init_info()
+
     def __init_repos(self):
         """ Init all (public + private) repos owned by me """
         repos = self.__get_contents_from('/user/repos')
@@ -52,6 +55,11 @@ class Extractor:
                 recent_push_events_by_me.append(event)
 
         return recent_push_events_by_me
+
+    def __init_info(self):
+        """ Init informations of Github user account of mine """
+        info = self.__get_contents_from('/users/{}'.format(username))
+        return info
 
     ###################################
     # HTTP Request methods come below #
@@ -89,4 +97,7 @@ class Extractor:
 
     def get_repo_names(self):
         return [repo['name'] for repo in self.__repos]
+    
+    def get_email(self):
+        return self.__info['email']
 
