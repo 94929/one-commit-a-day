@@ -8,11 +8,13 @@ from config import gmail_username
 from config import gmail_password
 
 
-def send_mail(sender, recipient, msg):
+def send_mail(sender, recipient, text):
     smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     smtp.login(sender, gmail_password)
-    msg = MIMEText(msg)
-    msg['Subject'] = 'TEST'
+
+    msg = MIMEText(text)
+    msg['Subject'] = 'Daily commit notification regarding your Github account'
+
     smtp.sendmail(sender, recipient, msg.as_string())
     smtp.quit()
 
@@ -21,7 +23,7 @@ def notify_me(recipient):
     """ sends me an email saying that I might miss a commit for today """
     
     sender = gmail_username + '@gmail.com'
-    msg = "You don't have any commit today!"
+    msg = "You don't have any pushed commit today!"
     send_mail(sender, recipient, msg)
 
 
@@ -32,12 +34,12 @@ def has_valid_event():
 
 
 def main():
-    # if there is no commit pushed for today
+    # do nothing if there is a pushed commit today
     if has_valid_event():
         return 
 
-    # notify me
-    notify_me(Extractor().get_my_email())
+    # email me
+    notify_me(Extractor().email)
 
     
 if __name__ == '__main__':
