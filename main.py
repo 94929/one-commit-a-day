@@ -4,8 +4,8 @@ import smtplib
 from email.mime.text import MIMEText
 
 from extractor import Extractor
-from config import gmail_username
-from config import gmail_password
+from config import email_username
+from config import email_password
 
 
 def send_mail(sender, recipient, text):
