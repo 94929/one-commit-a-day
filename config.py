@@ -5,6 +5,6 @@ headers = {
     }
 
 # Email
-email_username = '$(gmail-username)'
-email_password = '$(gmail-app-password)'
+email_username = '$(gmail-id)'
+email_password = '$(gmail-pw)'
 
