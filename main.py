@@ -1,30 +1,13 @@
 #!/usr/bin/env python3
 
-import smtplib
-from email.mime.text import MIMEText
-
 from extractor import Extractor
-from config import email_username
-from config import email_password
-
-
-def send_mail(sender, recipient, text):
-    smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    smtp.login(sender, gmail_password)
-
-    msg = MIMEText(text)
-    msg['Subject'] = 'Daily commit notification regarding your Github account'
-
-    smtp.sendmail(sender, recipient, msg.as_string())
-    smtp.quit()
+from sender import Sender
 
 
 def notify_me(recipient):
     """ sends me an email saying that I might miss a commit for today """
     
-    sender = gmail_username + '@gmail.com'
-    msg = "You don't have any pushed commit today!"
-    send_mail(sender, recipient, msg)
+    Sender(recipient).send()
 
 
 def has_valid_event():
